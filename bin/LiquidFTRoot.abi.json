@@ -1,0 +1,180 @@
+{
+	"ABI version": 2,
+	"header": ["pubkey", "time", "expire"],
+	"functions": [
+		{
+			"name": "constructor",
+			"inputs": [
+				{"name":"icon","type":"bytes"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "getWalletCode",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"value0","type":"cell"}
+			]
+		},
+		{
+			"name": "callWalletCode",
+			"inputs": [
+				{"name":"_answer_id","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"value0","type":"cell"}
+			]
+		},
+		{
+			"name": "getRootInfo",
+			"inputs": [
+			],
+			"outputs": [
+				{"components":[{"name":"name","type":"bytes"},{"name":"symbol","type":"bytes"},{"name":"decimals","type":"uint8"},{"name":"totalSupply","type":"uint128"}],"name":"value0","type":"tuple"},
+				{"name":"value1","type":"bytes"}
+			]
+		},
+		{
+			"name": "callRootInfo",
+			"inputs": [
+				{"name":"_answer_id","type":"uint32"}
+			],
+			"outputs": [
+				{"components":[{"name":"name","type":"bytes"},{"name":"symbol","type":"bytes"},{"name":"decimals","type":"uint8"},{"name":"totalSupply","type":"uint128"}],"name":"value0","type":"tuple"},
+				{"name":"value1","type":"bytes"}
+			]
+		},
+		{
+			"name": "getWalletAddress",
+			"inputs": [
+				{"name":"ownerAddress","type":"address"}
+			],
+			"outputs": [
+				{"name":"value0","type":"address"}
+			]
+		},
+		{
+			"name": "callWalletAddress",
+			"inputs": [
+				{"name":"_answer_id","type":"uint32"},
+				{"name":"ownerAddress","type":"address"}
+			],
+			"outputs": [
+				{"name":"value0","type":"address"}
+			]
+		},
+		{
+			"name": "createWallet",
+			"inputs": [
+				{"name":"ownerAddress","type":"address"},
+				{"name":"notifyOnReceiveAddress","type":"address"},
+				{"name":"tokensAmount","type":"uint128"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "callCreateWallet",
+			"inputs": [
+				{"name":"_answer_id","type":"uint32"},
+				{"name":"ownerAddress","type":"address"},
+				{"name":"notifyOnReceiveAddress","type":"address"},
+				{"name":"tokensAmount","type":"uint128"}
+			],
+			"outputs": [
+				{"name":"value0","type":"address"}
+			]
+		},
+		{
+			"name": "burn",
+			"inputs": [
+				{"name":"amount","type":"uint128"},
+				{"name":"senderOwnerAddress","type":"address"},
+				{"name":"initiatorAddress","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "mint",
+			"inputs": [
+				{"name":"amount","type":"uint128"},
+				{"name":"targetOwnerAddress","type":"address"},
+				{"name":"notifyAddress","type":"address"},
+				{"name":"body","type":"cell"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "getOwnerAddress",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"value0","type":"address"}
+			]
+		},
+		{
+			"name": "callOwnerAddress",
+			"inputs": [
+				{"name":"_answer_id","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"value0","type":"address"}
+			]
+		},
+		{
+			"name": "changeOwner",
+			"inputs": [
+				{"name":"newOwnerAddress","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "callChangeOwner",
+			"inputs": [
+				{"name":"_answer_id","type":"uint32"},
+				{"name":"newOwnerAddress","type":"address"}
+			],
+			"outputs": [
+				{"name":"value0","type":"address"}
+			]
+		}
+	],
+	"data": [
+		{"key":1,"name":"_walletCode","type":"cell"},
+		{"components":[{"name":"name","type":"bytes"},{"name":"symbol","type":"bytes"},{"name":"decimals","type":"uint8"},{"name":"totalSupply","type":"uint128"}],"key":2,"name":"_rootInfo","type":"tuple"}
+	],
+	"events": [
+		{
+			"name": "tokensMinted",
+			"inputs": [
+				{"name":"amount","type":"uint128"},
+				{"name":"targetOwnerAddress","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "walletCreated",
+			"inputs": [
+				{"name":"ownerAddress","type":"address"},
+				{"name":"walletAddress","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "tokensBurned",
+			"inputs": [
+				{"name":"amount","type":"uint128"},
+				{"name":"senderOwnerAddress","type":"address"}
+			],
+			"outputs": [
+			]
+		}
+	]
+}
