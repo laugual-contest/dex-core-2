@@ -17,12 +17,13 @@ interface IDexFactory
     //
     /// @notice Creates new TRC-5 Token and adds it to DEX. Root owner is msg.sender;
     ///
-    /// @param name     - new Token name;
-    /// @param symbol   - new Token symbol;
-    /// @param decimals - new Token decimals;
-    /// @param icon     - utf8-string with encoded PNG image (RFC 2397). The string format is "data:image/png;base64,<image>", where image - image bytes encoded in base64;
+    /// @param name          - new Token name;
+    /// @param symbol        - new Token symbol;
+    /// @param decimals      - new Token decimals;
+    /// @param icon          - utf8-string with encoded PNG image (RFC 2397). The string format is "data:image/png;base64,<image>", where image - image bytes encoded in base64;
+    /// @param initialPubkey - 
     //
-    function createSymbol(bytes name, bytes symbol, uint8 decimals, bytes icon) external;
+    function createSymbol(bytes name, bytes symbol, uint8 decimals, bytes icon, uint256 initialPubkey) external;
     
     /// @notice Adds an existing TRC-5 Token to DEX.
     ///         User who is adding the Token will pay all the fees:

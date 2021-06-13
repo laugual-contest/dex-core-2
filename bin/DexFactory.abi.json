@@ -5,6 +5,7 @@
 		{
 			"name": "constructor",
 			"inputs": [
+				{"name":"ownerAddress","type":"address"}
 			],
 			"outputs": [
 			]
@@ -44,7 +45,10 @@
 		{
 			"name": "callbackVerifyTokenInfo",
 			"inputs": [
-				{"components":[{"name":"name","type":"bytes"},{"name":"symbol","type":"bytes"},{"name":"decimals","type":"uint8"},{"name":"totalSupply","type":"uint128"}],"name":"tokenInfo","type":"tuple"},
+				{"name":"name","type":"bytes"},
+				{"name":"symbol","type":"bytes"},
+				{"name":"decimals","type":"uint8"},
+				{"name":"totalSupply","type":"uint128"},
 				{"name":"icon","type":"bytes"}
 			],
 			"outputs": [
@@ -56,7 +60,8 @@
 				{"name":"name","type":"bytes"},
 				{"name":"symbol","type":"bytes"},
 				{"name":"decimals","type":"uint8"},
-				{"name":"icon","type":"bytes"}
+				{"name":"icon","type":"bytes"},
+				{"name":"initialPubkey","type":"uint256"}
 			],
 			"outputs": [
 			]
@@ -105,6 +110,17 @@
 			],
 			"outputs": [
 				{"name":"value0","type":"address"}
+			]
+		},
+		{
+			"name": "getCellContents",
+			"inputs": [
+				{"name":"operation","type":"uint8"},
+				{"name":"price","type":"uint128"},
+				{"name":"slippage","type":"uint16"}
+			],
+			"outputs": [
+				{"name":"value0","type":"cell"}
 			]
 		},
 		{

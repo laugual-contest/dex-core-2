@@ -48,26 +48,33 @@ contract DexFactory is IDexFactory, IOwnable
 
     //========================================
     //
-    function callbackVerifyTokenInfo(TokenInfo tokenInfo, bytes icon) public reserve
+    function callbackVerifyTokenInfo(bytes name, bytes symbol, uint8 decimals, uint128 totalSupply, bytes icon) public reserve
     {
         require(_listSymbolsAwaitingVerification[msg.sender].addressRTW == msg.sender, ERROR_SYMBOL_NOT_IN_VERIFICATION);
 
-        _listSymbols[msg.sender].addressRTW = msg.sender;
-        _listSymbols[msg.sender].addressTTW = addressZero;
-        _listSymbols[msg.sender].name       = tokenInfo.name;
-        _listSymbols[msg.sender].symbol     = tokenInfo.symbol;
-        _listSymbols[msg.sender].decimals   = tokenInfo.decimals;
-        _listSymbols[msg.sender].balance    = 0;
-        _listSymbols[msg.sender].icon       = icon;
+        // Silence the warning
+        totalSupply = 0;
+
+        Symbol _symbol;
+        _symbol.addressRTW = msg.sender;
+        _symbol.addressTTW = addressZero;
+        _symbol.name       = name;
+        _symbol.symbol     = symbol;
+        _symbol.decimals   = decimals;
+        _symbol.balance    = 0;
+        _symbol.icon       = icon;
         
+        _listSymbols[msg.sender] = _symbol;
+
         delete _listSymbolsAwaitingVerification[msg.sender];
     }
 
     //========================================
     // 
-    constructor() public
+    constructor(address ownerAddress) public
     {
         tvm.accept();
+        _ownerAddress = ownerAddress;
     }
 
     //========================================
@@ -75,23 +82,21 @@ contract DexFactory is IDexFactory, IOwnable
     function calculatePairFutureAddress(address symbol1RTW, address symbol2RTW) private inline view returns (address, TvmCell)
     {
         (address symbol1, address symbol2) = _sortAddresses(symbol1RTW, symbol2RTW);
-        TokenInfo rootInfoLP;
 
-        string name            = _listSymbols[symbol1].name;    name.append("-");    name.append(_listSymbols[symbol2].symbol);
-        string symbol          = _listSymbols[symbol1].symbol;  symbol.append(_listSymbols[symbol2].symbol);
-        rootInfoLP.name        = name;
-        rootInfoLP.symbol      = symbol;
-        rootInfoLP.decimals    = 9;
-        rootInfoLP.totalSupply = 0;
+        string name   = _listSymbols[symbol1].name;    name.append("-");    name.append(_listSymbols[symbol2].symbol);
+        string symbol = _listSymbols[symbol1].symbol;  symbol.append(_listSymbols[symbol2].symbol);
+
 
         TvmCell stateInit = tvm.buildStateInit({
             contr: SymbolPair,
             varInit: {
                 _walletCode:    _LPWalletCode,
-                _rootInfo:      rootInfoLP,
+                _name:           name,
+                _symbol:         symbol,
+                _decimals:       9,
                 _factoryAddress: address(this),
-                _symbol1RTW:    symbol1RTW,
-                _symbol2RTW:    symbol2RTW
+                _symbol1RTW:     symbol1RTW,
+                _symbol2RTW:     symbol2RTW
             },
             code: _symbolPairCode
         });
@@ -101,15 +106,18 @@ contract DexFactory is IDexFactory, IOwnable
 
     //========================================
     //
-    function calculateRTWFutureAddress(TokenInfo info) private inline view returns (address, TvmCell)
+    function calculateRTWFutureAddress(bytes name, bytes symbol, uint8 decimals, uint256 initialPubkey) private inline view returns (address, TvmCell)
     {
         TvmCell stateInit = tvm.buildStateInit({
             contr: LiquidFTRoot,
             varInit: {
                 _walletCode: _TTWCode,
-                _rootInfo:   info
+                _name:        name,
+                _symbol:      symbol,
+                _decimals:    decimals
             },
-            code: _RTWCode
+            pubkey: initialPubkey,
+            code:  _RTWCode
         });
 
         return (address(tvm.hash(stateInit)), stateInit);
@@ -117,14 +125,14 @@ contract DexFactory is IDexFactory, IOwnable
 
     //========================================
     //
-    function createSymbol(bytes name, bytes symbol, uint8 decimals, bytes icon) external override reserve
+    function createSymbol(bytes name, bytes symbol, uint8 decimals, bytes icon, uint256 initialPubkey) external override reserve
     {
         TokenInfo info;
         info.name     = name;
         info.symbol   = symbol;
         info.decimals = decimals;
 
-        (, TvmCell stateInit) = calculateRTWFutureAddress(info);
+        (, TvmCell stateInit) = calculateRTWFutureAddress(name, symbol, decimals, initialPubkey);
         new LiquidFTRoot{stateInit: stateInit, value: 0, flag: 128}(icon);
     }
 
@@ -174,6 +182,15 @@ contract DexFactory is IDexFactory, IOwnable
     {
         (address desiredAddress, ) = calculatePairFutureAddress(symbol1RTW, symbol2RTW);
         return desiredAddress;
+    }
+
+    //========================================
+    //
+    function getCellContents(uint8 operation, uint128 price, uint16 slippage) external pure returns (TvmCell)
+    {
+        TvmBuilder builder;
+        builder.store(operation, price, slippage);
+        return builder.toCell();
     }
 }
 

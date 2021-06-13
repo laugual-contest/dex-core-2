@@ -13,7 +13,7 @@ import "../interfaces/ISymbolPair.sol";
 import "../interfaces/IDexFactory.sol";
 
 //================================================================================
-//
+// TODO: add retry to create wallets if failed
 contract SymbolPair is IOwnable, ILiquidFTRoot, ISymbolPair, iFTNotify
 {
     //========================================
@@ -26,10 +26,13 @@ contract SymbolPair is IOwnable, ILiquidFTRoot, ISymbolPair, iFTNotify
 
     //========================================
     // Variables
-    TvmCell   static _walletCode; //
-    TokenInfo static _rootInfo;   //
-    bytes            _icon;       // utf8-string with encoded PNG image. The string format is "data:image/png;base64,<image>", where image - image bytes encoded in base64.
-                                  // _icon = "data:image/png;base64,iVBORw0KG...5CYII=";
+    TvmCell static _walletCode;  //
+    bytes   static _name;        //
+    bytes   static _symbol;      //
+    uint8   static _decimals;    //
+    uint128        _totalSupply; //
+    bytes          _icon;        // utf8-string with encoded PNG image. The string format is "data:image/png;base64,<image>", where image - image bytes encoded in base64.
+                                 // _icon = "data:image/png;base64,iVBORw0KG...5CYII=";
 
     address public static _factoryAddress; //
     address public static _symbol1RTW;     //
@@ -37,6 +40,7 @@ contract SymbolPair is IOwnable, ILiquidFTRoot, ISymbolPair, iFTNotify
     Symbol                _symbol1;
     Symbol                _symbol2;
 
+    // TODO: move to a separate contract
     mapping(address => uint128) _limboSymbol1; // Liquidity that was transferred to the Pair but not yet applied
     mapping(address => uint128) _limboSymbol2; // Liquidity that was transferred to the Pair but not yet applied
 
@@ -52,10 +56,17 @@ contract SymbolPair is IOwnable, ILiquidFTRoot, ISymbolPair, iFTNotify
     // Getters
     function  getWalletCode()                        external view             override         returns (TvmCell)         {                                                        return                      (_walletCode);       }
     function callWalletCode()                        external view responsible override reserve returns (TvmCell)         {                                                        return {value: 0, flag: 128}(_walletCode);       }
-    function  getRootInfo()                          external view             override         returns (TokenInfo, bytes){                                                        return                      (_rootInfo, _icon);  }
-    function callRootInfo()                          external view responsible override reserve returns (TokenInfo, bytes){                                                        return {value: 0, flag: 128}(_rootInfo, _icon);  }
     function  getWalletAddress(address ownerAddress) external view             override         returns (address)         {    (address addr, ) = _getWalletInit(ownerAddress);    return                      (addr);              }
     function callWalletAddress(address ownerAddress) external view responsible override reserve returns (address)         {    (address addr, ) = _getWalletInit(ownerAddress);    return {value: 0, flag: 128}(addr);              }
+
+    function  getRootInfo() external view override returns (bytes name, bytes symbol, uint8 decimals, uint128 totalSupply, bytes icon)
+    {
+        return (_name, _symbol, _decimals, _totalSupply, _icon);  
+    }
+    function callRootInfo() external view responsible override reserve returns (bytes name, bytes symbol, uint8 decimals, uint128 totalSupply, bytes icon)
+    {
+        return {value: 0, flag: 128}(_name, _symbol, _decimals, _totalSupply, _icon);
+    }
 
     //========================================
     //
@@ -79,7 +90,7 @@ contract SymbolPair is IOwnable, ILiquidFTRoot, ISymbolPair, iFTNotify
     //
     function _walletCreationCallback(address walletAddress) public reserve
     {
-        require(msg.sender == _symbol1RTW || msg.sender == _symbol1RTW, ERROR_WALLET_ADDRESS_INVALID);
+        require(msg.sender == _symbol1RTW || msg.sender == _symbol2RTW, ERROR_WALLET_ADDRESS_INVALID);
 
         if(msg.sender == _symbol1RTW) {    _symbol1.addressTTW = walletAddress;    }
         if(msg.sender == _symbol2RTW) {    _symbol2.addressTTW = walletAddress;    }
@@ -112,11 +123,11 @@ contract SymbolPair is IOwnable, ILiquidFTRoot, ISymbolPair, iFTNotify
             revert(ERROR_NO_MINTING_IN_POOL); // no minting when creating a wallet for liquidity tokens
         }
         
-        (, TvmCell stateInit) = _getWalletInit(ownerAddress);
-        address walletAddress = new LiquidFTWallet{value: value, flag: flag, stateInit: stateInit, wid: address(this).wid}(msg.sender, notifyOnReceiveAddress, tokensAmount);
-
+        (address walletAddress, TvmCell stateInit) = _getWalletInit(ownerAddress);
         // Event
         emit walletCreated(ownerAddress, walletAddress);
+
+         new LiquidFTWallet{value: value, flag: flag, stateInit: stateInit, wid: address(this).wid}(msg.sender, notifyOnReceiveAddress, tokensAmount);
 
         return walletAddress;
     }
@@ -143,7 +154,7 @@ contract SymbolPair is IOwnable, ILiquidFTRoot, ISymbolPair, iFTNotify
 
         // TODO: withdraw liquidity here
         TvmCell emptyBody;
-        uint256 ratio = (_rootInfo.totalSupply * 10**uint256(_localDecimals)) / uint256(amount);
+        uint256 ratio = (_totalSupply * 10**uint256(_localDecimals)) / uint256(amount);
         uint128 amountSymbol1 = uint128((uint256(_symbol1.balance) * 10**uint256(_localDecimals)) / ratio);
         uint128 amountSymbol2 = uint128((uint256(_symbol2.balance) * 10**uint256(_localDecimals)) / ratio);
 
@@ -151,9 +162,9 @@ contract SymbolPair is IOwnable, ILiquidFTRoot, ISymbolPair, iFTNotify
         ILiquidFTWallet(_symbol2.addressTTW).transfer{value: msg.value / 3, flag: 0}(amountSymbol2, senderOwnerAddress, initiatorAddress, addressZero, emptyBody);
 
         // Adjust values
-        _symbol1.balance      -= amountSymbol1;
-        _symbol2.balance      -= amountSymbol2;
-        _rootInfo.totalSupply -= amount;       
+        _symbol1.balance -= amountSymbol1;
+        _symbol2.balance -= amountSymbol2;
+        _totalSupply     -= amount;       
 
         // Event
         emit tokensBurned(amount, senderOwnerAddress);
@@ -168,12 +179,13 @@ contract SymbolPair is IOwnable, ILiquidFTRoot, ISymbolPair, iFTNotify
     {
         (address walletAddress, ) = _getWalletInit(targetOwnerAddress);
 
-        // Mint adds balance to root total supply
-        _rootInfo.totalSupply += amount;
-        ILiquidFTWallet(walletAddress).receiveTransfer{value: 0, flag: 128}(amount, addressZero, _ownerAddress, notifyAddress, body);
-        
         // Event
         emit tokensMinted(amount, targetOwnerAddress);
+
+        // Mint adds balance to root total supply
+        _totalSupply += amount;
+        ILiquidFTWallet(walletAddress).receiveTransfer{value: 0, flag: 128}(amount, addressZero, msg.sender, notifyAddress, body);
+        
     }
     
     function mint(uint128 amount, address targetOwnerAddress, address notifyAddress, TvmCell body) public override onlyOwner reserve
@@ -189,7 +201,7 @@ contract SymbolPair is IOwnable, ILiquidFTRoot, ISymbolPair, iFTNotify
 		if (functionId == tvm.functionId(LiquidFTWallet.receiveTransfer)) 
         {
 			uint128 amount = slice.decode(uint128);
-            _rootInfo.totalSupply -= amount;
+            _totalSupply -= amount;
 
             // We know for sure that initiator in "mint" process is RTW owner;
             _ownerAddress.transfer(0, true, 128);
@@ -323,15 +335,18 @@ contract SymbolPair is IOwnable, ILiquidFTRoot, ISymbolPair, iFTNotify
 
     //========================================
     //
-    function depositLiquidity(uint128 amountSymbol1, uint128 amountSymbol2, uint16 slippage) external override
+    function depositLiquidity(uint128 amountSymbol1, uint128 amountSymbol2, uint16 slippage) external override reserve
     {
         // Omit decimals here because we know they are the same
         (uint128 currentRatio, ) =  getPairRatio(true);
         (uint128 desiredRatio, ) = _getPairRatio(amountSymbol1, _symbol1.decimals, amountSymbol2, _symbol2.decimals);
 
         uint128 difference = 0;
-        if(currentRatio > desiredRatio) {    difference = 100 - (desiredRatio * 100 / currentRatio);    }
-        else                            {    difference = 100 - (currentRatio * 100 / desiredRatio);    }
+        if(currentRatio > 0)
+        {
+            if(currentRatio > desiredRatio) {    difference = 100 - (desiredRatio * 100 / currentRatio);    }
+            else                            {    difference = 100 - (currentRatio * 100 / desiredRatio);    }
+        }
 
         if(difference <= slippage)
         {
@@ -344,8 +359,8 @@ contract SymbolPair is IOwnable, ILiquidFTRoot, ISymbolPair, iFTNotify
             }
             else
             {
-                uint256 liquidityRatio = (uint256(_symbol1.balance)      * 10**uint256(_localDecimals)) / amountSymbol1;
-                        newLiquidity   = (uint256(_rootInfo.totalSupply) * 10**uint256(_localDecimals)) / liquidityRatio;
+                uint256 liquidityRatio = (uint256(_symbol1.balance) * 10**uint256(_localDecimals)) / amountSymbol1;
+                        newLiquidity   = (uint256(_totalSupply)     * 10**uint256(_localDecimals)) / liquidityRatio;
             }
 
             // Update values

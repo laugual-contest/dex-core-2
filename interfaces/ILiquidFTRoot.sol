@@ -32,12 +32,12 @@ interface ILiquidFTRoot
 
     //========================================
     // Getters
-    function  getWalletCode()                        external view             returns (TvmCell);          // Wallet code;
-    function callWalletCode()                        external view responsible returns (TvmCell);          // Wallet code, responsible;
-    function  getRootInfo()                          external view             returns (TokenInfo, bytes); // Token information + icon;
-    function callRootInfo()                          external view responsible returns (TokenInfo, bytes); // Token information + icon, responsible;
-    function  getWalletAddress(address ownerAddress) external view             returns (address);          // Arbitratry Wallet address;
-    function callWalletAddress(address ownerAddress) external view responsible returns (address);          // Arbitratry Wallet address, responsible;
+    function  getWalletCode()                        external view             returns (TvmCell);                             // Wallet code;
+    function callWalletCode()                        external view responsible returns (TvmCell);                             // Wallet code, responsible;
+    function  getRootInfo()                          external view             returns (bytes, bytes, uint8, uint128, bytes); // Token information + icon;
+    function callRootInfo()                          external view responsible returns (bytes, bytes, uint8, uint128, bytes); // Token information + icon, responsible;
+    function  getWalletAddress(address ownerAddress) external view             returns (address);                             // Arbitratry Wallet address;
+    function callWalletAddress(address ownerAddress) external view responsible returns (address);                             // Arbitratry Wallet address, responsible;
 
     //========================================
     /// @notice Receives burn command from Wallet;
