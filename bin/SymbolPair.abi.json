@@ -6,8 +6,8 @@
 			"name": "constructor",
 			"inputs": [
 				{"name":"icon","type":"bytes"},
-				{"components":[{"name":"addressRTW","type":"address"},{"name":"addressTTW","type":"address"},{"name":"name","type":"bytes"},{"name":"symbol","type":"bytes"},{"name":"decimals","type":"uint8"},{"name":"balance","type":"uint128"}],"name":"symbol1","type":"tuple"},
-				{"components":[{"name":"addressRTW","type":"address"},{"name":"addressTTW","type":"address"},{"name":"name","type":"bytes"},{"name":"symbol","type":"bytes"},{"name":"decimals","type":"uint8"},{"name":"balance","type":"uint128"}],"name":"symbol2","type":"tuple"},
+				{"components":[{"name":"addressRTW","type":"address"},{"name":"addressTTW","type":"address"},{"name":"name","type":"bytes"},{"name":"symbol","type":"bytes"},{"name":"decimals","type":"uint8"},{"name":"balance","type":"uint128"},{"name":"icon","type":"bytes"}],"name":"symbol1","type":"tuple"},
+				{"components":[{"name":"addressRTW","type":"address"},{"name":"addressTTW","type":"address"},{"name":"name","type":"bytes"},{"name":"symbol","type":"bytes"},{"name":"decimals","type":"uint8"},{"name":"balance","type":"uint128"},{"name":"icon","type":"bytes"}],"name":"symbol2","type":"tuple"},
 				{"name":"creatorAddress","type":"address"}
 			],
 			"outputs": [
@@ -124,8 +124,8 @@
 			"inputs": [
 			],
 			"outputs": [
-				{"components":[{"name":"addressRTW","type":"address"},{"name":"addressTTW","type":"address"},{"name":"name","type":"bytes"},{"name":"symbol","type":"bytes"},{"name":"decimals","type":"uint8"},{"name":"balance","type":"uint128"}],"name":"symbol1","type":"tuple"},
-				{"components":[{"name":"addressRTW","type":"address"},{"name":"addressTTW","type":"address"},{"name":"name","type":"bytes"},{"name":"symbol","type":"bytes"},{"name":"decimals","type":"uint8"},{"name":"balance","type":"uint128"}],"name":"symbol2","type":"tuple"},
+				{"components":[{"name":"addressRTW","type":"address"},{"name":"addressTTW","type":"address"},{"name":"name","type":"bytes"},{"name":"symbol","type":"bytes"},{"name":"decimals","type":"uint8"},{"name":"balance","type":"uint128"},{"name":"icon","type":"bytes"}],"name":"symbol1","type":"tuple"},
+				{"components":[{"name":"addressRTW","type":"address"},{"name":"addressTTW","type":"address"},{"name":"name","type":"bytes"},{"name":"symbol","type":"bytes"},{"name":"decimals","type":"uint8"},{"name":"balance","type":"uint128"},{"name":"icon","type":"bytes"}],"name":"symbol2","type":"tuple"},
 				{"name":"liquidity","type":"uint256"},
 				{"name":"decimals","type":"uint8"}
 			]

@@ -1,4 +1,4 @@
-pragma ton-solidity >= 0.38.0;
+pragma ton-solidity >= 0.44.0;
 pragma AbiHeader expire;
 pragma AbiHeader time;
 pragma AbiHeader pubkey;
@@ -6,51 +6,57 @@ pragma AbiHeader pubkey;
 //================================================================================
 //
 import "../interfaces/ISymbolPair.sol";
+import "../contracts/LiquidFTRoot.sol";
 
 //================================================================================
 //
 interface IDexFactory
 {
     //========================================
-    // Callbacks
-    //
-    function callback_VerifyTokenDetails(bytes name, bytes symbol, uint8 decimals) external;
-    //function callback_AddTTW(address addressTTW, uint128 grams, uint256 walletPublicKey, address ownerAddress) external;
-    
-    //========================================
     // Management
     //
-    /// @notice Adds a new Symbol to DEX; Can be called by anyone (not only Owner or Governance);
-    ///         When called, new Symbol will be added and then verified automatically;
-    ///         NOTE: currently DexFactory uses its own funds (tvm.accept()) to manage this function, thus
-    ///               one can perform an attack and spend all the funds of the contract; it is made for
-    ///               simplicity of DEX Stage 1 Implementation;
-    ///         TODO: add TTL to temporary entries to stop DexFactory contract from growing; 
+    /// @notice Creates new TRC-5 Token and adds it to DEX. Root owner is msg.sender;
+    ///
+    /// @param name     - new Token name;
+    /// @param symbol   - new Token symbol;
+    /// @param decimals - new Token decimals;
+    /// @param icon     - utf8-string with encoded PNG image (RFC 2397). The string format is "data:image/png;base64,<image>", where image - image bytes encoded in base64;
+    //
+    function createSymbol(bytes name, bytes symbol, uint8 decimals, bytes icon) external;
+    
+    /// @notice Adds an existing TRC-5 Token to DEX.
+    ///         User who is adding the Token will pay all the fees:
+    ///          - RTW creation;
+    ///         Unspent change will be returned;
     ///
     /// @param symbolRTW  - RTW address of the Symbol (wallet); 
     //
     function addSymbol(address symbolRTW) external;
 
     /// @notice Adds a new SymbolPair to DEX; Both Symbols must be added beforehead; Order of the Symbols doesn't matter;
+    ///         User who is adding the Token will pay all the fees:
+    ///          - SymbolPair creation;
+    ///          - SymbolPair TTW creation;
+    ///         Unspent change will be returned;
     ///
-    /// @param symbol1RTW - RTW address of the Symbol (wallet);
-    /// @param symbol2RTW - RTW address of the Symbol (wallet);
+    /// @param symbol1RTW - RTW address of the Symbol;
+    /// @param symbol2RTW - RTW address of the Symbol;
     //
     function addPair(address symbol1RTW, address symbol2RTW) external;
     
     /// @notice Sets custom fee for a specific SymbolPair; Order of the Symbols doesn't matter;
     ///
-    /// @param symbol1RTW - RTW address of the Symbol (wallet);
-    /// @param symbol2RTW - RTW address of the Symbol (wallet);
+    /// @param symbol1RTW - RTW address of the Symbol;
+    /// @param symbol2RTW - RTW address of the Symbol;
     /// @param fee        - Fee value; default 3% = 30;
     //
     function setProviderFee(address symbol1RTW, address symbol2RTW, uint16 fee) external;
 
-    /// @notice Checks if the Symbol exists in DexFactory;
+    /// @notice Gets Symbol information from Factory; If symbol does not exist returns an exception;
     ///
     /// @param symbolRTW - RTW address of the Symbol (wallet);
     //
-    function symbolExists(address symbolRTW) external view returns (bool);
+    function getSymbolInfo(address symbolRTW) external view returns (Symbol);
 
     /// @notice Returns address of a specific SymbolPair contract, (0, 0) on fail; Order of the Symbols doesn't matter;
     ///
@@ -58,10 +64,6 @@ interface IDexFactory
     /// @param symbol2RTW - RTW address of the Symbol (wallet);
     //
     function getPairAddress(address symbol1RTW, address symbol2RTW) external view returns (address);
-
-    /// @notice Returns addresses of all SymbolPairs contracts;
-    //
-    //function getAllPairs() external view returns (address[]);
 }
 
 //================================================================================

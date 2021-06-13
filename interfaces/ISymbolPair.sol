@@ -1,4 +1,4 @@
-pragma ton-solidity >= 0.38.0;
+pragma ton-solidity >= 0.44.0;
 pragma AbiHeader expire;
 pragma AbiHeader time;
 pragma AbiHeader pubkey;
@@ -15,6 +15,7 @@ struct Symbol
     bytes   symbol;     //
     uint8   decimals;   //
     uint128 balance;    //
+    bytes   icon;       //
 }
 
 enum OPERATION

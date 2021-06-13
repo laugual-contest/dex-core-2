@@ -1,0 +1,182 @@
+{
+	"ABI version": 2,
+	"header": ["pubkey", "time", "expire"],
+	"functions": [
+		{
+			"name": "constructor",
+			"inputs": [
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "setSymbolPairCode",
+			"inputs": [
+				{"name":"code","type":"cell"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "setLPWalletCode",
+			"inputs": [
+				{"name":"code","type":"cell"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "setRTWCode",
+			"inputs": [
+				{"name":"code","type":"cell"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "setTTWCode",
+			"inputs": [
+				{"name":"code","type":"cell"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "callbackVerifyTokenInfo",
+			"inputs": [
+				{"components":[{"name":"name","type":"bytes"},{"name":"symbol","type":"bytes"},{"name":"decimals","type":"uint8"},{"name":"totalSupply","type":"uint128"}],"name":"tokenInfo","type":"tuple"},
+				{"name":"icon","type":"bytes"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "createSymbol",
+			"inputs": [
+				{"name":"name","type":"bytes"},
+				{"name":"symbol","type":"bytes"},
+				{"name":"decimals","type":"uint8"},
+				{"name":"icon","type":"bytes"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "addSymbol",
+			"inputs": [
+				{"name":"symbolRTW","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "addPair",
+			"inputs": [
+				{"name":"symbol1RTW","type":"address"},
+				{"name":"symbol2RTW","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "setProviderFee",
+			"inputs": [
+				{"name":"symbol1RTW","type":"address"},
+				{"name":"symbol2RTW","type":"address"},
+				{"name":"fee","type":"uint16"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "getSymbolInfo",
+			"inputs": [
+				{"name":"symbolRTW","type":"address"}
+			],
+			"outputs": [
+				{"components":[{"name":"addressRTW","type":"address"},{"name":"addressTTW","type":"address"},{"name":"name","type":"bytes"},{"name":"symbol","type":"bytes"},{"name":"decimals","type":"uint8"},{"name":"balance","type":"uint128"},{"name":"icon","type":"bytes"}],"name":"value0","type":"tuple"}
+			]
+		},
+		{
+			"name": "getPairAddress",
+			"inputs": [
+				{"name":"symbol1RTW","type":"address"},
+				{"name":"symbol2RTW","type":"address"}
+			],
+			"outputs": [
+				{"name":"value0","type":"address"}
+			]
+		},
+		{
+			"name": "getOwnerAddress",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"value0","type":"address"}
+			]
+		},
+		{
+			"name": "callOwnerAddress",
+			"inputs": [
+				{"name":"_answer_id","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"value0","type":"address"}
+			]
+		},
+		{
+			"name": "changeOwner",
+			"inputs": [
+				{"name":"newOwnerAddress","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "callChangeOwner",
+			"inputs": [
+				{"name":"_answer_id","type":"uint32"},
+				{"name":"newOwnerAddress","type":"address"}
+			],
+			"outputs": [
+				{"name":"value0","type":"address"}
+			]
+		},
+		{
+			"name": "_symbolPairCode",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_symbolPairCode","type":"cell"}
+			]
+		},
+		{
+			"name": "_LPWalletCode",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_LPWalletCode","type":"cell"}
+			]
+		},
+		{
+			"name": "_RTWCode",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_RTWCode","type":"cell"}
+			]
+		},
+		{
+			"name": "_TTWCode",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_TTWCode","type":"cell"}
+			]
+		}
+	],
+	"data": [
+	],
+	"events": [
+	]
+}
