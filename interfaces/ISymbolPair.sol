@@ -29,33 +29,50 @@ interface ISymbolPair
 {
     //========================================
     //
+    /// @notice Gets Symbol1 info, Symbol2 info, total pool liquidity and liquidity decimals;
+    //
+    function getPairLiquidity() external view returns (Symbol, Symbol, uint256, uint8);
+
+    //========================================
+    //
+    /// @notice Gets pair ratio;
+    ///
+    /// @param firstFirst - get ratio symbol1/symbol2 or symbol2/symbol1;
+    //
+    function getPairRatio(bool firstFirst) external view returns (uint128, uint8);
+
+    //========================================
+    //
+    /// @notice Gets price for given amount of tokens;
+    ///
+    /// @param symbolSellRTW - Symbol RTW to sell;
+    /// @param amountToGive - Amount of tokens to sell;
+    //
+    function getPrice(address symbolSellRTW, uint128 amountToGive) external view returns (uint128, uint8);
+
+    //========================================
+    //
     /// @notice Sets the fee that Liquidity Providers ger from each trade; 1% = 100; 100% = 10000;
     ///
     /// @param fee - Fee value; default 3% = 30;
     //
     function setProviderFee(uint16 fee) external;
+    
+    //========================================
+    //
+    /// @notice Deposits liquidity from Limbo to the pool; User gets LP tokens in return;
+    ///
+    /// @param amountSymbol1 - Amount of Synbol 1 to deposit;
+    /// @param amountSymbol2 - Amount of Symbol 2 to deposit;
+    /// @param slippage      - Slippage threshold in percents (1% = 100) after which operation is aborted;
+    //
+    function depositLiquidity(uint128 amountSymbol1, uint128 amountSymbol2, uint16 slippage) external;
 
     //========================================
-    // Liquidity
-    //function getPairRatio(bool firstFirst)                                                             external view returns (uint256, uint8); // Returns current pool ratio and decimals, is needed to perform correct "depositLiquidity";
-    //function depositLiquidity (uint128 amount1, uint128 amount2, address ttwToken1, address ttwToken2) external;                               // ORDER OF SYMBOLS MATTERS
-    //function withdrawLiquidity(uint256 amountLiquidity)                                                external;                               //
-    //function getPairLiquidity ()                                                                       external view returns (uint256, uint8); //
-    //function getUserLiquidity (uint256 ownerPubKey)                                                    external view returns (uint256, uint8); //
-    //function getUserTotalLiquidity()                                                                   external view returns (uint256, uint8); //
-
-    // Trading
-    //function getPrice  (address RTW_ofTokenToGet, address RTW_ofTokenToGive, uint128 amountToGive) external view returns (uint256, uint8);
-    //function swapTokens(address tokenToGet, address tokenToGive, uint128 amountToGive, address ttwTokenToGet, address ttwTokenToGive) external;
-
-    // Callbacks
-    //function callbackDeployEmptyWallet        (address newWalletAddress,       uint128 grams, uint256 walletPublicKey, address ownerAddress) external;
-    //function callbackSwapGetTTWAddress        (address targetAddress,                         uint256 walletPublicKey, address ownerAddress) external;
-    //function callbackDepositGetTTWAddress     (address targetAddress,                         uint256 walletPublicKey, address ownerAddress) external;
-    //function callbackSendTokensWithResolve    (uint errorCode, uint128 tokens, uint128 grams, uint256 pubKeyToResolve                      ) external;
-    //function callbackSwapGetTransferResult    (uint errorCode, uint128 tokens,                                         address to          ) external;
-    //function callbackDepositGetTransferResult2(uint errorCode, uint128 tokens,                                         address to          ) external;
-    //function callbackDepositGetTransferResult (uint errorCode, uint128 tokens,                                         address to          ) external;
+    //
+    /// @notice Collects tokens that were not deposited to the pool back to user wallets;
+    //
+    function collectLiquidityLeftovers() external;
 }
 
 //================================================================================

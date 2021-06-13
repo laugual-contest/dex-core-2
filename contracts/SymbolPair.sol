@@ -19,6 +19,10 @@ contract SymbolPair is IOwnable, ILiquidFTRoot, ISymbolPair, iFTNotify
     //========================================
     // Error codes
     uint constant ERROR_WALLET_ADDRESS_INVALID = 301;
+    uint constant ERROR_SENDER_IS_NOT_FACTORY  = 400;
+    uint constant ERROR_SYMBOL_ADDRESS_INVALID = 401;
+    uint constant ERROR_RTW_ADDRESS_INVALID    = 402;
+    uint constant ERROR_NO_MINTING_IN_POOL     = 403;
 
     //========================================
     // Variables
@@ -42,7 +46,7 @@ contract SymbolPair is IOwnable, ILiquidFTRoot, ISymbolPair, iFTNotify
 
     //========================================
     // Modifiers
-    modifier onlyFactory {    require(msg.sender == _factoryAddress && _factoryAddress != addressZero, 9999);    _;    }
+    modifier onlyFactory {    require(msg.sender == _factoryAddress && _factoryAddress != addressZero, ERROR_SENDER_IS_NOT_FACTORY);    _;    }
     
     //========================================
     // Getters
@@ -57,8 +61,8 @@ contract SymbolPair is IOwnable, ILiquidFTRoot, ISymbolPair, iFTNotify
     //
     constructor(bytes icon, Symbol symbol1, Symbol symbol2, address creatorAddress) public onlyFactory reserve
     {
-        require(_symbol1RTW != addressZero && _symbol1RTW.isStdAddrWithoutAnyCast(), 9999);
-        require(_symbol2RTW != addressZero && _symbol2RTW.isStdAddrWithoutAnyCast(), 9999);
+        require(_symbol1RTW != addressZero && _symbol1RTW.isStdAddrWithoutAnyCast(), ERROR_SYMBOL_ADDRESS_INVALID);
+        require(_symbol2RTW != addressZero && _symbol2RTW.isStdAddrWithoutAnyCast(), ERROR_SYMBOL_ADDRESS_INVALID);
 
         tvm.accept();
         _icon           = icon;
@@ -75,7 +79,7 @@ contract SymbolPair is IOwnable, ILiquidFTRoot, ISymbolPair, iFTNotify
     //
     function _walletCreationCallback(address walletAddress) public reserve
     {
-        require(msg.sender == _symbol1RTW || msg.sender == _symbol1RTW, 9999);
+        require(msg.sender == _symbol1RTW || msg.sender == _symbol1RTW, ERROR_WALLET_ADDRESS_INVALID);
 
         if(msg.sender == _symbol1RTW) {    _symbol1.addressTTW = walletAddress;    }
         if(msg.sender == _symbol2RTW) {    _symbol2.addressTTW = walletAddress;    }
@@ -105,8 +109,7 @@ contract SymbolPair is IOwnable, ILiquidFTRoot, ISymbolPair, iFTNotify
     {
         if(tokensAmount > 0)
         {
-            require(senderIsOwner(), ERROR_MESSAGE_SENDER_IS_NOT_MY_OWNER);
-            _rootInfo.totalSupply += tokensAmount;
+            revert(ERROR_NO_MINTING_IN_POOL); // no minting when creating a wallet for liquidity tokens
         }
         
         (, TvmCell stateInit) = _getWalletInit(ownerAddress);
@@ -161,7 +164,7 @@ contract SymbolPair is IOwnable, ILiquidFTRoot, ISymbolPair, iFTNotify
 
     //========================================
     //
-    function mint(uint128 amount, address targetOwnerAddress, address notifyAddress, TvmCell body) public override onlyOwner reserve
+    function _mint(uint128 amount, address targetOwnerAddress, address notifyAddress, TvmCell body) private reserve
     {
         (address walletAddress, ) = _getWalletInit(targetOwnerAddress);
 
@@ -171,6 +174,11 @@ contract SymbolPair is IOwnable, ILiquidFTRoot, ISymbolPair, iFTNotify
         
         // Event
         emit tokensMinted(amount, targetOwnerAddress);
+    }
+    
+    function mint(uint128 amount, address targetOwnerAddress, address notifyAddress, TvmCell body) public override onlyOwner reserve
+    {
+        _mint(amount, targetOwnerAddress, notifyAddress, body);
     }
 
     //========================================
@@ -187,6 +195,16 @@ contract SymbolPair is IOwnable, ILiquidFTRoot, ISymbolPair, iFTNotify
             _ownerAddress.transfer(0, true, 128);
 		}
 	}
+
+    //========================================
+    // 
+    function getPairLiquidity() external view override returns (Symbol symbol1, Symbol symbol2, uint256 liquidity, uint8 decimals) 
+    {
+        uint256 amount = _symbol1.balance  * _symbol2.balance;
+        uint8   dcmls  = _symbol1.decimals + _symbol2.decimals;
+
+        return (_symbol1, _symbol2, amount, dcmls);
+    }
 
     //========================================
     // 
@@ -207,7 +225,7 @@ contract SymbolPair is IOwnable, ILiquidFTRoot, ISymbolPair, iFTNotify
         return (uint128(ratio), decimals);
     }
 
-    function getPairRatio(bool firstFirst) public view returns (uint128, uint8)
+    function getPairRatio(bool firstFirst) public view override returns (uint128, uint8)
     {
         Symbol symbol1 = firstFirst ? _symbol1 : _symbol2;
         Symbol symbol2 = firstFirst ? _symbol2 : _symbol1;
@@ -224,8 +242,8 @@ contract SymbolPair is IOwnable, ILiquidFTRoot, ISymbolPair, iFTNotify
 
     function receiveNotification(uint128 amount, address senderOwnerAddress, address initiatorAddress, TvmCell body) external override reserve
     {
-        require(_symbol1.addressRTW != addressZero && _symbol2.addressRTW != addressZero,                                         9999);
-        require(msg.sender.isStdAddrWithoutAnyCast() && (msg.sender == _symbol1.addressRTW || msg.sender == _symbol2.addressRTW), 9999);
+        require(_symbol1.addressTTW != addressZero && _symbol2.addressTTW != addressZero,                                         ERROR_SYMBOL_ADDRESS_INVALID);
+        require(msg.sender.isStdAddrWithoutAnyCast() && (msg.sender == _symbol1.addressTTW || msg.sender == _symbol2.addressTTW), ERROR_SYMBOL_ADDRESS_INVALID);
 
         TvmCell emptyBody;
         TvmSlice slice = body.toSlice();
@@ -263,9 +281,9 @@ contract SymbolPair is IOwnable, ILiquidFTRoot, ISymbolPair, iFTNotify
 
     //========================================
     //
-    function getPrice(address symbolSellRTW, uint128 amountToGive) public view returns (uint128, uint8) 
+    function getPrice(address symbolSellRTW, uint128 amountToGive) public view override returns (uint128, uint8) 
     {
-        require(symbolSellRTW  == _symbol1.addressRTW || symbolSellRTW  == _symbol2.addressRTW, 9999);
+        require(symbolSellRTW  == _symbol1.addressRTW || symbolSellRTW  == _symbol2.addressRTW, ERROR_RTW_ADDRESS_INVALID);
 
         Symbol symbolGet  = (symbolSellRTW == _symbol1.addressRTW ? _symbol2 : _symbol1); // 
         Symbol symbolGive = (symbolSellRTW == _symbol1.addressRTW ? _symbol1 : _symbol2); // 
@@ -305,7 +323,7 @@ contract SymbolPair is IOwnable, ILiquidFTRoot, ISymbolPair, iFTNotify
 
     //========================================
     //
-    function depositLiquidity(uint128 amountSymbol1, uint128 amountSymbol2, uint16 slippage) external
+    function depositLiquidity(uint128 amountSymbol1, uint128 amountSymbol2, uint16 slippage) external override
     {
         // Omit decimals here because we know they are the same
         (uint128 currentRatio, ) =  getPairRatio(true);
@@ -339,7 +357,7 @@ contract SymbolPair is IOwnable, ILiquidFTRoot, ISymbolPair, iFTNotify
 
             // Mint
             TvmCell emptyBody;
-            mint(uint128(newLiquidity), msg.sender, addressZero, emptyBody);
+            _mint(uint128(newLiquidity), msg.sender, addressZero, emptyBody);
         }
         else 
         {
@@ -350,7 +368,7 @@ contract SymbolPair is IOwnable, ILiquidFTRoot, ISymbolPair, iFTNotify
     
     //========================================
     //
-    function collectLiquidityLeftovers() external
+    function collectLiquidityLeftovers() external override
     {
         TvmCell emptyBody;
         if(_limboSymbol1[msg.sender] > 0)
