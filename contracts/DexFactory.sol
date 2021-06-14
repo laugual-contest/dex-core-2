@@ -168,7 +168,7 @@ contract DexFactory is IDexFactory, IOwnable
     function setProviderFee(address symbol1RTW, address symbol2RTW, uint16 fee) external override onlyOwner reserve
     {
         (address desierdAddress, ) = calculatePairFutureAddress(symbol1RTW, symbol2RTW);
-        ISymbolPair(desierdAddress).setProviderFee(fee);
+        ISymbolPair(desierdAddress).setProviderFee{value:0, flag: 128}(fee);
     }
 
     function getSymbolInfo(address symbolRTW) external view override returns (Symbol)

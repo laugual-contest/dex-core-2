@@ -15,6 +15,7 @@ import "../interfaces/IDexFactory.sol";
 //================================================================================
 // TODO: add retry to create wallets if failed
 // TODO: add checks that we have both TTWs deployed before doing anything
+// TODO: add minimum liquidity for trading
 contract SymbolPair is IOwnable, ILiquidFTRoot, ISymbolPair, iFTNotify
 {
     //========================================
@@ -323,7 +324,7 @@ contract SymbolPair is IOwnable, ILiquidFTRoot, ISymbolPair, iFTNotify
         if(price > currentPrice) {    difference = 100 - (currentPrice * 100 / price);    }
         else                     {    difference = 100 - (price * 100 / currentPrice);    }
 
-        if(difference <= slippage)
+        if(amount < symbolSell.balance && difference <= slippage)
         {
             // Send tokens
             if(symbolSellRTW == _symbol1RTW) {    _symbol1.balance += amount;    _symbol2.balance -= currentPrice;    }
