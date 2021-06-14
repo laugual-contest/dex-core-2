@@ -21,13 +21,19 @@ struct Symbol
 enum OPERATION
 {
     SWAP,
-    DEPOSIT_LIQUIDITY
+    DEPOSIT_LIQUIDITY,
+    NUM
 }
 
 //================================================================================
 //
 interface ISymbolPair
 {
+    //========================================
+    // Events
+    event swapSucceeded     (address buyRTW, uint128 amountBought, uint128 amountSold, address initiatorAddress);
+    event liquidityDeposited(uint128 amountSymbol1, uint128 amountSymbol2, address initiatorAddress);
+    
     //========================================
     //
     /// @notice Gets Symbol1 info, Symbol2 info, total pool liquidity and liquidity decimals;

@@ -52,9 +52,9 @@ class SymbolPair(object):
 
     #========================================
     #
-    #def getBalance(self):
-    #    result = self._run(functionName="getBalance", functionParams={})
-    #    return result
+    def getPrice(self, symbolSellRTW: str, amountToGive: int):
+        result = self._run(functionName="getPrice", functionParams={"symbolSellRTW":symbolSellRTW, "amountToGive":amountToGive})
+        return result
 
 
 # ==============================================================================

@@ -252,15 +252,22 @@ class Test_05_ProvideLiquidity(unittest.TestCase):
         #pprint(msgArray)
 
         result = pair1.collectLiquidityLeftovers(msig=msigWallet1, value=TON)
+        #msgArray = unwrapMessages(getClient(), result[0].transaction["out_msgs"], _getAbiArray())
+        #pprint(msgArray)
+
+        price = pair1.getPrice(root1.ADDRESS, 500000000000)
+        cell = factory.getCellContents(operation=0, price=price["price"], slippage=100) # SWAP
+        result = candyWallet1.transfer(msig=msigWallet1, value=TON, amount=5000000000000, targetOwnerAddress=pair1.ADDRESS, initiatorAddress=msigWallet1.ADDRESS, notifyAddress=ZERO_ADDRESS, body=cell)
         msgArray = unwrapMessages(getClient(), result[0].transaction["out_msgs"], _getAbiArray())
         pprint(msgArray)
 
+        result = lpWallet1.burn(msig=msigWallet1, value=TON, amount="1000000000000000000000")
+        #msgArray = unwrapMessages(getClient(), result[0].transaction["out_msgs"], _getAbiArray())
+        #pprint(msgArray)
+
     # 4. Provide liquidity
     def test_4(self):
-        result = factory.setSymbolPairCode(msig=msigFactory, value=TON, code=getCodeFromTvc("../bin/SymbolPair.tvc"))
-        result = factory.setLPWalletCode  (msig=msigFactory, value=TON, code=getCodeFromTvc("../bin/LiquidFTWallet.tvc"))
-        result = factory.setRTWCode       (msig=msigFactory, value=TON, code=getCodeFromTvc("../bin/LiquidFTRoot.tvc"))
-        result = factory.setTTWCode       (msig=msigFactory, value=TON, code=getCodeFromTvc("../bin/LiquidFTWallet.tvc"))
+        pass
 
     # 5. Cleanup
     def test_5(self):

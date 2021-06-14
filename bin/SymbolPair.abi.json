@@ -172,8 +172,8 @@
 				{"name":"amountToGive","type":"uint128"}
 			],
 			"outputs": [
-				{"name":"value0","type":"uint128"},
-				{"name":"value1","type":"uint8"}
+				{"name":"price","type":"uint128"},
+				{"name":"decimals","type":"uint8"}
 			]
 		},
 		{
@@ -279,6 +279,27 @@
 		{"key":7,"name":"_symbol2RTW","type":"address"}
 	],
 	"events": [
+		{
+			"name": "swapSucceeded",
+			"inputs": [
+				{"name":"buyRTW","type":"address"},
+				{"name":"amountBought","type":"uint128"},
+				{"name":"amountSold","type":"uint128"},
+				{"name":"initiatorAddress","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "liquidityDeposited",
+			"inputs": [
+				{"name":"amountSymbol1","type":"uint128"},
+				{"name":"amountSymbol2","type":"uint128"},
+				{"name":"initiatorAddress","type":"address"}
+			],
+			"outputs": [
+			]
+		},
 		{
 			"name": "tokensMinted",
 			"inputs": [

@@ -87,7 +87,7 @@ contract LiquidFTWallet is IBase, ILiquidFTWallet
         emit tokensBurned(amount);
 
         // Change will be returned by root
-        ILiquidFTRoot(_rootAddress).burn(amount, _ownerAddress, msg.sender);
+        ILiquidFTRoot(_rootAddress).burn{value: 0, flag: 128}(amount, _ownerAddress, msg.sender);
     }
 
     //========================================
