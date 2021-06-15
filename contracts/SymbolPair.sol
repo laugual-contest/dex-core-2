@@ -54,7 +54,7 @@ contract SymbolPair is IOwnable, ILiquidFTRoot, ISymbolPair, iFTNotify
     //========================================
     // Modifiers
     modifier onlyFactory {    require(msg.sender == _factoryAddress && _factoryAddress != addressZero, ERROR_SENDER_IS_NOT_FACTORY);    _;    }
-    function walletsExist() internal inline returns (bool) {    return (_symbol1.addressTTW != addressZero && _symbol2.addressTTW != addressZero);    }
+    function walletsExist() internal inline view returns (bool) {    return (_symbol1.addressTTW != addressZero && _symbol2.addressTTW != addressZero);    }
     
     //========================================
     // Inline functions
@@ -94,13 +94,13 @@ contract SymbolPair is IOwnable, ILiquidFTRoot, ISymbolPair, iFTNotify
 
     //========================================
     //
-    function _createWallets() internal 
+    function _createWallets() internal view
     {
         if(_symbol1.addressTTW == addressZero) {    ILiquidFTRoot(_symbol1RTW).callCreateWallet{value: msg.value / 2, flag: 0,   callback: _walletCreationCallback}(address(this), address(this), 0);    }
         if(_symbol2.addressTTW == addressZero) {    ILiquidFTRoot(_symbol2RTW).callCreateWallet{value: 0,             flag: 128, callback: _walletCreationCallback}(address(this), address(this), 0);    }
     }
 
-    function createWallets() public reserve 
+    function createWallets() public view reserve 
     {
         _createWallets();
     }
@@ -370,8 +370,9 @@ contract SymbolPair is IOwnable, ILiquidFTRoot, ISymbolPair, iFTNotify
         uint128 difference = 0;
         if(currentRatio > 0)
         {
-            if(currentRatio > desiredRatio) {    difference = 10000 - (desiredRatio * 10000 / currentRatio);    }
-            else                            {    difference = 10000 - (currentRatio * 10000 / desiredRatio);    }
+            // Adjust deposit values if there's some slippage
+            if(currentRatio > desiredRatio) {    difference = 10000 - (desiredRatio * 10000 / currentRatio);    amountSymbol2 = uint128(uint256(amountSymbol2) * uint256(currentRatio) / 10000);    }
+            else                            {    difference = 10000 - (currentRatio * 10000 / desiredRatio);    amountSymbol1 = uint128(uint256(amountSymbol1) * uint256(currentRatio) / 10000);    }
         }
 
         if(difference <= slippage)
