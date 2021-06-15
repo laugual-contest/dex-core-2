@@ -13,7 +13,7 @@ import "../interfaces/ISymbolPair.sol";
 import "../interfaces/IDexFactory.sol";
 
 //================================================================================
-//
+// TODO: add getter for Limbo liquidity
 contract SymbolPair is IOwnable, ILiquidFTRoot, ISymbolPair, iFTNotify
 {
     //========================================

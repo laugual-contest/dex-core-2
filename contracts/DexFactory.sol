@@ -150,7 +150,7 @@ contract DexFactory is IDexFactory, IOwnable
     }
 
     //========================================
-    //
+    // TODO: don't allow to deploy Pair if we don't have pair code (or wallet's code)
     function addPair(address symbol1RTW, address symbol2RTW) external override reserve
     {
         require(symbol1RTW != symbol2RTW,        ERROR_SYMBOLS_CANT_BE_THE_SAME);
