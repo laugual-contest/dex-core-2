@@ -83,7 +83,7 @@ contract DexFactory is IDexFactory, IOwnable
     {
         (address symbol1, address symbol2) = _sortAddresses(symbol1RTW, symbol2RTW);
 
-        string name   = _listSymbols[symbol1].name;    name.append("-");    name.append(_listSymbols[symbol2].symbol);
+        string name   = _listSymbols[symbol1].name;    name.append("-");    name.append(_listSymbols[symbol2].name);
         string symbol = _listSymbols[symbol1].symbol;  symbol.append(_listSymbols[symbol2].symbol);
 
 

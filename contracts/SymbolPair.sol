@@ -265,7 +265,7 @@ contract SymbolPair is IOwnable, ILiquidFTRoot, ISymbolPair, iFTNotify
     }
 
     //========================================
-    //
+    // TODO: add TvmCell size checks to prevent cell overflow
     function setProviderFee(uint16 fee) external override onlyFactory reserve returnChange
     {
         _currentFee = fee;
@@ -297,6 +297,11 @@ contract SymbolPair is IOwnable, ILiquidFTRoot, ISymbolPair, iFTNotify
                 // just deposit, update mappings
                      if(msg.sender == _symbol1.addressTTW) {    _limboSymbol1[senderOwnerAddress] += amount;    }
                 else if(msg.sender == _symbol2.addressTTW) {    _limboSymbol2[senderOwnerAddress] += amount;    }
+            }
+            else 
+            {
+                // Invalid operation, return tokens back, we don't know what sender wanted
+                ILiquidFTWallet(msg.sender).transfer{value: 0, flag: 128}(amount, senderOwnerAddress, initiatorAddress, addressZero, emptyBody);
             }
         }
     }
