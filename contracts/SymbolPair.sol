@@ -358,7 +358,7 @@ contract SymbolPair is IOwnable, ILiquidFTRoot, ISymbolPair, iFTNotify
     }
 
     //========================================
-    // TODO: adjust amounts to use real ratio, now the ratio is not preserved
+    //
     function depositLiquidity(uint128 amountSymbol1, uint128 amountSymbol2, uint16 slippage) external override reserve
     {
         require(amountSymbol1 >= _minimumDeposit && amountSymbol2 >= _minimumDeposit, ERROR_DEPOSIT_TOO_SMALL);
