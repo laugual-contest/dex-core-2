@@ -75,6 +75,13 @@
 			]
 		},
 		{
+			"name": "createWallets",
+			"inputs": [
+			],
+			"outputs": [
+			]
+		},
+		{
 			"name": "_walletCreationCallback",
 			"inputs": [
 				{"name":"walletAddress","type":"address"}
