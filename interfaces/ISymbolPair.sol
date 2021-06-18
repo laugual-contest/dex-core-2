@@ -48,7 +48,7 @@ interface ISymbolPair
     ///
     /// @param firstFirst - get ratio symbol1/symbol2 or symbol2/symbol1;
     //
-    function getPairRatio(bool firstFirst) external view returns (uint128, uint8);
+    function getPairRatio(bool firstFirst) external view returns (uint256, uint8);
 
     //========================================
     //

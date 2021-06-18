@@ -239,7 +239,7 @@ contract SymbolPair is IOwnable, ILiquidFTRoot, ISymbolPair, iFTNotify
 
     //========================================
     // 
-    function _getPairRatio(uint128 amount1, uint8 decimals1, uint128 amount2, uint8 decimals2) internal view returns (uint128, uint8)
+    function _getPairRatio(uint128 amount1, uint8 decimals1, uint128 amount2, uint8 decimals2) internal view returns (uint256, uint8)
     {
         // Empty
         if(amount1 == 0 || amount2 == 0)
@@ -253,10 +253,10 @@ contract SymbolPair is IOwnable, ILiquidFTRoot, ISymbolPair, iFTNotify
         ratio = ratio * uint256(10**uint256(_localDecimals));
         ratio = ratio / uint256(amount2);
 
-        return (uint128(ratio), decimals);
+        return (ratio, decimals);
     }
 
-    function getPairRatio(bool firstFirst) public view override returns (uint128, uint8)
+    function getPairRatio(bool firstFirst) public view override returns (uint256, uint8)
     {
         Symbol symbol1 = firstFirst ? _symbol1 : _symbol2;
         Symbol symbol2 = firstFirst ? _symbol2 : _symbol1;
@@ -380,15 +380,15 @@ contract SymbolPair is IOwnable, ILiquidFTRoot, ISymbolPair, iFTNotify
         require(amountSymbol1 >= _minimumDeposit && amountSymbol2 >= _minimumDeposit, ERROR_DEPOSIT_TOO_SMALL);
         
         // Omit decimals here because we know they are the same
-        (uint128 currentRatio, ) =  getPairRatio(true);
-        (uint128 desiredRatio, ) = _getPairRatio(amountSymbol1, _symbol1.decimals, amountSymbol2, _symbol2.decimals);
+        (uint256 currentRatio, uint8 ratioDecimals) =  getPairRatio(true);
+        (uint256 desiredRatio, )                    = _getPairRatio(amountSymbol1, _symbol1.decimals, amountSymbol2, _symbol2.decimals);
 
         uint128 difference = 0;
         if(currentRatio > 0)
         {
             // Adjust deposit values if there's some slippage
-            if(currentRatio > desiredRatio) {    difference = 10000 - (desiredRatio * 10000 / currentRatio);    amountSymbol2 = uint128(uint256(amountSymbol2) * uint256(currentRatio) / 10000);    }
-            else                            {    difference = 10000 - (currentRatio * 10000 / desiredRatio);    amountSymbol1 = uint128(uint256(amountSymbol1) * uint256(currentRatio) / 10000);    }
+            if(currentRatio > desiredRatio) {    difference = 10000 - uint128(uint256(desiredRatio) * 10000 / uint256(currentRatio));    amountSymbol2 = uint128(uint256(amountSymbol2) * uint256(currentRatio) / 10000 / uint256(10 ** uint256(ratioDecimals)));    }
+            else                            {    difference = 10000 - uint128(uint256(currentRatio) * 10000 / uint256(desiredRatio));    amountSymbol1 = uint128(uint256(amountSymbol1) * uint256(currentRatio) / 10000 / uint256(10 ** uint256(ratioDecimals)));    }
         }
 
         if(difference <= slippage)
