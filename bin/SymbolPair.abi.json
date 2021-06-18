@@ -154,6 +154,16 @@
 			]
 		},
 		{
+			"name": "getUserLimbo",
+			"inputs": [
+				{"name":"ownerAddress","type":"address"}
+			],
+			"outputs": [
+				{"name":"amountSymbol1","type":"uint128"},
+				{"name":"amountSymbol2","type":"uint128"}
+			]
+		},
+		{
 			"name": "setProviderFee",
 			"inputs": [
 				{"name":"fee","type":"uint16"}
@@ -298,10 +308,34 @@
 			]
 		},
 		{
+			"name": "swapFailed",
+			"inputs": [
+				{"name":"symbolSellRTW","type":"address"},
+				{"name":"amount","type":"uint128"},
+				{"name":"slippage","type":"uint16"},
+				{"name":"actualSlippage","type":"uint16"},
+				{"name":"initiatorAddress","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
 			"name": "liquidityDeposited",
 			"inputs": [
 				{"name":"amountSymbol1","type":"uint128"},
 				{"name":"amountSymbol2","type":"uint128"},
+				{"name":"initiatorAddress","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "liquidityFailed",
+			"inputs": [
+				{"name":"amountSymbol1","type":"uint128"},
+				{"name":"amountSymbol2","type":"uint128"},
+				{"name":"slippage","type":"uint16"},
+				{"name":"actualSlippage","type":"uint16"},
 				{"name":"initiatorAddress","type":"address"}
 			],
 			"outputs": [

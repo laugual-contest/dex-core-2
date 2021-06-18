@@ -19,7 +19,7 @@ class LiquidFTRoot(object):
         self.ADDRESS     = getAddress(abiPath=self.ABI, tvcPath=self.TVC, signer=signer, initialPubkey=self.PUBKEY, initialData=self.INITDATA)
 
     def deploy(self, icon: str):
-        self.CONSTRUCTOR = {"icon":icon}
+        self.CONSTRUCTOR = {"icon":stringToHex(icon)}
         result = deployContract(tonClient=self.TONCLIENT, abiPath=self.ABI, tvcPath=self.TVC, constructorInput=self.CONSTRUCTOR, initialData=self.INITDATA, signer=self.SIGNER, initialPubkey=self.PUBKEY)
         return result
     

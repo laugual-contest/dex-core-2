@@ -53,6 +53,10 @@ interface IDexFactory
     //
     function setProviderFee(address symbol1RTW, address symbol2RTW, uint16 fee) external;
 
+    /// @notice Gets all the Symbols that were added to DEX Factory;
+    //
+    function getSymbolsList() external view returns (Symbol[]);
+
     /// @notice Gets Symbol information from Factory; If symbol does not exist returns an exception;
     ///
     /// @param symbolRTW - RTW address of the Symbol (wallet);

@@ -18,16 +18,17 @@ contract DexFactory is IDexFactory, IOwnable
     uint constant ERROR_SYMBOL_DOES_NOT_EXIST      = 202;
     uint constant ERROR_SYMBOLS_CANT_BE_THE_SAME   = 203;
     uint constant ERROR_SYMBOL_NOT_IN_VERIFICATION = 204;
+    uint constant ERROR_NO_TOKEN_CODE              = 205;
 
     TvmCell public _symbolPairCode; // SymbolPair contract code;
     TvmCell public _LPWalletCode;   // SymbolPair Liquidity token wallet contract code;
-    TvmCell public _RTWCode;        // TRC-5 RTW code;
-    TvmCell public _TTWCode;        // TRC-5 TTW code;
+    TvmCell public _RTWCode;        // TRC-6 RTW code;
+    TvmCell public _TTWCode;        // TRC-6 TTW code;
 
     //========================================
     // Mappings
-    mapping(address => Symbol) _listSymbols;
-    mapping(address => Symbol) _listSymbolsAwaitingVerification;
+    mapping(address => Symbol ) _listSymbols;
+    mapping(address => address) _listSymbolsAwaitingVerification;
 
     //========================================
     // Events
@@ -40,7 +41,7 @@ contract DexFactory is IDexFactory, IOwnable
     }
 
     //========================================
-    // TODO: if code is not set don't allow to manage Factory
+    //
     function setSymbolPairCode(TvmCell code) external onlyOwner reserve returnChange {    _symbolPairCode = code;    }
     function setLPWalletCode  (TvmCell code) external onlyOwner reserve returnChange {    _LPWalletCode   = code;    }
     function setRTWCode       (TvmCell code) external onlyOwner reserve returnChange {    _RTWCode        = code;    }
@@ -50,9 +51,11 @@ contract DexFactory is IDexFactory, IOwnable
     //
     function callbackVerifyTokenInfo(bytes name, bytes symbol, uint8 decimals, uint128 totalSupply, bytes icon) public reserve
     {
-        require(_listSymbolsAwaitingVerification[msg.sender].addressRTW == msg.sender, ERROR_SYMBOL_NOT_IN_VERIFICATION);
+        require(_listSymbolsAwaitingVerification[msg.sender] == msg.sender, ERROR_SYMBOL_NOT_IN_VERIFICATION);
 
         // Silence the warning
+        // And we are not adding icons, we value the storage space
+        icon = "";
         totalSupply = 0;
 
         Symbol _symbol;
@@ -62,7 +65,6 @@ contract DexFactory is IDexFactory, IOwnable
         _symbol.symbol     = symbol;
         _symbol.decimals   = decimals;
         _symbol.balance    = 0;
-        _symbol.icon       = icon;
         
         _listSymbols[msg.sender] = _symbol;
 
@@ -127,11 +129,6 @@ contract DexFactory is IDexFactory, IOwnable
     //
     function createSymbol(bytes name, bytes symbol, uint8 decimals, bytes icon, uint256 initialPubkey) external override reserve
     {
-        TokenInfo info;
-        info.name     = name;
-        info.symbol   = symbol;
-        info.decimals = decimals;
-
         (, TvmCell stateInit) = calculateRTWFutureAddress(name, symbol, decimals, initialPubkey);
         new LiquidFTRoot{stateInit: stateInit, value: 0, flag: 128}(icon);
     }
@@ -142,20 +139,21 @@ contract DexFactory is IDexFactory, IOwnable
     {
         require(!_listSymbols.exists(symbolRTW), ERROR_SYMBOL_ALREADY_EXISTS);
 
-        _listSymbolsAwaitingVerification[symbolRTW].addressRTW = symbolRTW;
-        _listSymbolsAwaitingVerification[symbolRTW].addressTTW = addressZero;
-        _listSymbolsAwaitingVerification[symbolRTW].balance    = 0;
-
+        _listSymbolsAwaitingVerification[symbolRTW] = symbolRTW;
         ILiquidFTRoot(symbolRTW).callRootInfo{value: 0, flag: 128, callback: callbackVerifyTokenInfo}();
     }
 
     //========================================
-    // TODO: don't allow to deploy Pair if we don't have pair code (or wallet's code)
+    // 
     function addPair(address symbol1RTW, address symbol2RTW) external override reserve
     {
-        require(symbol1RTW != symbol2RTW,        ERROR_SYMBOLS_CANT_BE_THE_SAME);
-        require(_listSymbols.exists(symbol1RTW), ERROR_SYMBOL_DOES_NOT_EXIST   );
-        require(_listSymbols.exists(symbol2RTW), ERROR_SYMBOL_DOES_NOT_EXIST   );
+        require(symbol1RTW != symbol2RTW,           ERROR_SYMBOLS_CANT_BE_THE_SAME);
+        require(_listSymbols.exists(symbol1RTW),    ERROR_SYMBOL_DOES_NOT_EXIST   );
+        require(_listSymbols.exists(symbol2RTW),    ERROR_SYMBOL_DOES_NOT_EXIST   );
+        require(!_symbolPairCode.toSlice().empty(), ERROR_NO_TOKEN_CODE           );
+        require(!_LPWalletCode.toSlice().empty(),   ERROR_NO_TOKEN_CODE           );
+        require(!_RTWCode.toSlice().empty(),        ERROR_NO_TOKEN_CODE           );
+        require(!_TTWCode.toSlice().empty(),        ERROR_NO_TOKEN_CODE           );
 
         (address symbol1, address symbol2) = _sortAddresses(symbol1RTW, symbol2RTW);
         
@@ -171,6 +169,30 @@ contract DexFactory is IDexFactory, IOwnable
         ISymbolPair(desierdAddress).setProviderFee{value:0, flag: 128}(fee);
     }
 
+    //========================================
+    //
+    function getSymbolsList() external view override returns (Symbol[])
+    {
+        Symbol[] symbols;
+        for((, Symbol value) : _listSymbols)
+        {
+            symbols.push(value);
+        }
+        return symbols;
+    }
+
+    function getSymbolsAwaitingVerification() external view returns (address[])
+    {
+        address[] symbols;
+        for((, address value) : _listSymbolsAwaitingVerification)
+        {
+            symbols.push(value);
+        }
+        return symbols;
+    }
+
+    //========================================
+    //
     function getSymbolInfo(address symbolRTW) external view override returns (Symbol)
     {
         return _listSymbols[symbolRTW];

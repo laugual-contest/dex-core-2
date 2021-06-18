@@ -82,10 +82,8 @@ contract LiquidFTRoot is IOwnable, ILiquidFTRoot
         }
         
         (address walletAddress, TvmCell stateInit) = _getWalletInit(ownerAddress);
-        
         // Event
         emit walletCreated(ownerAddress, walletAddress);
-
         new LiquidFTWallet{value: value, flag: flag, stateInit: stateInit, wid: address(this).wid}(msg.sender, notifyOnReceiveAddress, tokensAmount);
 
         return walletAddress;
@@ -126,12 +124,12 @@ contract LiquidFTRoot is IOwnable, ILiquidFTRoot
     {
         (address walletAddress, ) = _getWalletInit(targetOwnerAddress);
 
+        // Event
+        emit tokensMinted(amount, targetOwnerAddress);
+
         // Mint adds balance to root total supply
         _totalSupply += amount;
         ILiquidFTWallet(walletAddress).receiveTransfer{value: 0, flag: 128}(amount, addressZero, _ownerAddress, notifyAddress, body);
-        
-        // Event
-        emit tokensMinted(amount, targetOwnerAddress);
     }
 
     //========================================

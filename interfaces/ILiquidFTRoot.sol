@@ -5,16 +5,6 @@ pragma AbiHeader expire;
 
 //================================================================================
 //
-struct TokenInfo
-{
-    bytes   name;        // Token name;
-    bytes   symbol;      // Token symbol;
-    uint8   decimals;    // Token decimals;
-    uint128 totalSupply; // Token total supply;
-}
-
-//================================================================================
-//
 interface iFTNotify
 {
     function receiveNotification(uint128 amount, address senderOwnerAddress, address initiatorAddress, TvmCell body) external;

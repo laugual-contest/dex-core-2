@@ -32,7 +32,9 @@ interface ISymbolPair
     //========================================
     // Events
     event swapSucceeded     (address buyRTW, uint128 amountBought, uint128 amountSold, address initiatorAddress);
+    event swapFailed        (address symbolSellRTW, uint128 amount, uint16 slippage, uint16 actualSlippage, address initiatorAddress);
     event liquidityDeposited(uint128 amountSymbol1, uint128 amountSymbol2, address initiatorAddress);
+    event liquidityFailed   (uint128 amountSymbol1, uint128 amountSymbol2, uint16 slippage, uint16 actualSlippage, address initiatorAddress);
     
     //========================================
     //
@@ -56,6 +58,14 @@ interface ISymbolPair
     /// @param amountToGive - Amount of tokens to sell;
     //
     function getPrice(address symbolSellRTW, uint128 amountToGive) external view returns (uint128, uint8);
+
+    //========================================
+    //
+    /// @notice Gets user liquidity that was sent to pair but not yet deposited;
+    ///
+    /// @param ownerAddress - TTW owner address;
+    //
+    function getUserLimbo(address ownerAddress) external returns (uint128, uint128);
 
     //========================================
     //

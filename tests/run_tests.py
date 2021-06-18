@@ -197,7 +197,7 @@ class Test_04_CreatePair(unittest.TestCase):
         #msgArray = unwrapMessages(getClient(), result[0].transaction["out_msgs"], _getAbiArray())
         #pprint(msgArray)
 
-        result = factory.addSymbol(msig=msigFactory, value=TON, symbolRTW=root2.ADDRESS)
+        #result = factory.addSymbol(msig=msigFactory, value=TON, symbolRTW=root2.ADDRESS)
         #msgArray = unwrapMessages(getClient(), result[0].transaction["out_msgs"], _getAbiArray())
         #pprint(msgArray)
 

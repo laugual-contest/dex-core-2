@@ -13,7 +13,7 @@ import "../interfaces/ISymbolPair.sol";
 import "../interfaces/IDexFactory.sol";
 
 //================================================================================
-// TODO: add getter for Limbo liquidity
+//
 contract SymbolPair is IOwnable, ILiquidFTRoot, ISymbolPair, iFTNotify
 {
     //========================================
@@ -265,12 +265,21 @@ contract SymbolPair is IOwnable, ILiquidFTRoot, ISymbolPair, iFTNotify
     }
 
     //========================================
-    // TODO: add TvmCell size checks to prevent cell overflow
+    //
+    function getUserLimbo(address ownerAddress) external override returns (uint128 amountSymbol1, uint128 amountSymbol2)
+    {
+        return(_limboSymbol1[ownerAddress], _limboSymbol2[ownerAddress]);
+    }
+
+    //========================================
+    //
     function setProviderFee(uint16 fee) external override onlyFactory reserve returnChange
     {
         _currentFee = fee;
     }
 
+    //========================================
+    // TODO: add TvmCell size checks to prevent cell overflow
     function receiveNotification(uint128 amount, address senderOwnerAddress, address initiatorAddress, TvmCell body) external override reserve
     {
         require(msg.sender.isStdAddrWithoutAnyCast() && (msg.sender == _symbol1.addressTTW || msg.sender == _symbol2.addressTTW), ERROR_SYMBOL_ADDRESS_INVALID);
@@ -357,6 +366,8 @@ contract SymbolPair is IOwnable, ILiquidFTRoot, ISymbolPair, iFTNotify
         }
         else 
         {
+            emit swapFailed(symbolSellRTW, amount, slippage, uint16(difference), initiatorAddress);
+
             // Swap failed, send unused tokens back
             ILiquidFTWallet(symbolSell.addressTTW).transfer{value: 0, flag: 128}(currentPrice, senderOwnerAddress, initiatorAddress, addressZero, emptyBody);
         }
@@ -410,6 +421,8 @@ contract SymbolPair is IOwnable, ILiquidFTRoot, ISymbolPair, iFTNotify
         }
         else 
         {
+            emit liquidityFailed(amountSymbol1, amountSymbol2, slippage, uint16(difference), msg.sender);
+
             // Abort, do nothing, return change
             msg.sender.transfer(0, true, 128);
         }
