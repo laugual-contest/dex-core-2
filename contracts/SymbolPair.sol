@@ -334,9 +334,7 @@ contract SymbolPair is IOwnable, ILiquidFTRoot, ISymbolPair, iFTNotify
         Symbol symbolGet  = (symbolSellRTW == _symbol1.addressRTW ? _symbol2 : _symbol1); // 
         Symbol symbolGive = (symbolSellRTW == _symbol1.addressRTW ? _symbol1 : _symbol2); // 
 
-        uint128 tokenReserve = symbolGet.balance;
-        uint128 tokensToBuy = getPriceInternal(amountToGive, tokenReserve, symbolGive.balance);
-
+        uint128 tokensToBuy = getPriceInternal(amountToGive, symbolGive.balance, symbolGet.balance);
         return (tokensToBuy, symbolGet.decimals);
     }
 
@@ -369,7 +367,7 @@ contract SymbolPair is IOwnable, ILiquidFTRoot, ISymbolPair, iFTNotify
             emit swapFailed(symbolSellRTW, amount, slippage, uint16(difference), initiatorAddress);
 
             // Swap failed, send unused tokens back
-            ILiquidFTWallet(symbolSell.addressTTW).transfer{value: 0, flag: 128}(currentPrice, senderOwnerAddress, initiatorAddress, addressZero, emptyBody);
+            ILiquidFTWallet(symbolSell.addressTTW).transfer{value: 0, flag: 128}(amount, senderOwnerAddress, initiatorAddress, addressZero, emptyBody);
         }
     }
 

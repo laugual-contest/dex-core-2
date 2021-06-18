@@ -5,15 +5,15 @@ pragma AbiHeader pubkey;
 
 //================================================================================
 //
-abstract contract Debot 
+import "../interfaces/IOwnable.sol";
+
+//================================================================================
+//
+abstract contract Debot is IOwnable
 {
     //========================================
-    // Constants
-    address constant addressZero = address.makeAddrStd(0, 0);
+    // 
     uint8 constant   DEBOT_ABI = 1;
-
-    //========================================
-    //
     uint8            m_options;
     optional(bytes)  m_icon;
     optional(string) m_debotAbi;
@@ -36,7 +36,7 @@ abstract contract Debot
     /// @notice Allow to set debot ABI. Do it before using debot.
     function setABI(string dabi) public 
     {
-        require(tvm.pubkey() == msg.pubkey(), 100);
+        require(tvm.pubkey() == msg.pubkey() || senderIsOwner(), 100);
         tvm.accept();
         m_options |= DEBOT_ABI;
         m_debotAbi = dabi;
@@ -44,7 +44,7 @@ abstract contract Debot
 
     function setIcon(bytes icon) public 
     {
-        require(tvm.pubkey() == msg.pubkey(), 100);
+        require(tvm.pubkey() == msg.pubkey() || senderIsOwner(), 100);
         tvm.accept();
         m_icon = icon;
     }
