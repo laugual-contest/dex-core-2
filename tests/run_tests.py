@@ -274,8 +274,8 @@ class Test_05_ProvideLiquidity(unittest.TestCase):
         price = pair1.getPrice(root1.ADDRESS, 500000000000)
         cell = factory.getCellContents(operation=0, price=price["price"], slippage=100) # SWAP
         result = candyWallet1.transfer(msig=msigWallet1, value=TON, amount=500000000000, targetOwnerAddress=pair1.ADDRESS, initiatorAddress=msigWallet1.ADDRESS, notifyAddress=ZERO_ADDRESS, body=cell)
-        msgArray = unwrapMessages(getClient(), result[0].transaction["out_msgs"], _getAbiArray())
-        pprint(msgArray)
+        #msgArray = unwrapMessages(getClient(), result[0].transaction["out_msgs"], _getAbiArray())
+        #pprint(msgArray)
 
         result = lpWallet1.burn(msig=msigWallet1, value=TON, amount="1000000000000000000000")
         #msgArray = unwrapMessages(getClient(), result[0].transaction["out_msgs"], _getAbiArray())
@@ -286,8 +286,8 @@ class Test_05_ProvideLiquidity(unittest.TestCase):
         msigDebot.deploy()
         debot.setABI           (msig=msigDebot, value=DIME, dabi=stringToHex(getAbi(debot.ABI).value))
         debot.setFactoryAddress(msig=msigDebot, value=DIME, factoryAddress=factory.ADDRESS)
-        print("DEBOT ADDRESS: ", debot.ADDRESS)
-        print("MSIG  ADDRESS: ", msigDebot.ADDRESS)
+        print("\nDEBOT ADDRESS: ", debot.ADDRESS)
+        print(  "MSIG  ADDRESS: ", msigDebot.ADDRESS)
 
         root1.createWallet(msig=msigDebot, value=TON, ownerAddress=msigDebot.ADDRESS, notifyOnReceiveAddress=ZERO_ADDRESS, tokensAmount=10000000000000)
         root2.createWallet(msig=msigDebot, value=TON, ownerAddress=msigDebot.ADDRESS, notifyOnReceiveAddress=ZERO_ADDRESS, tokensAmount=10000000000000)
